@@ -41,9 +41,9 @@ public class LcdLegoControlExampleMain {
 
     private static final String PATH = "lcd";
     private static final String CLIENT_NAME = "http_client";
-    private static final String CLIENT_IP = "<YOUR_IP>";
     /* default Robo4J port */
     private static final Integer CLIENT_PORT = 8025;
+    private static final String CLIENT_IP = "<SET_YOUR_IP>";
 
     public static void main(String[] args) throws Exception {
         RoboSystem system = new RoboSystem();
@@ -80,8 +80,8 @@ public class LcdLegoControlExampleMain {
         commands.setString("method", "GET");
         commands.setString("up", "move");
         commands.setString("down", "back");
-        commands.setString("left", "right");
-        commands.setString("right", "left");
+        commands.setString("left", "left");
+        commands.setString("right", "right");
         httpClient.initialize(config);
 
         system.addUnits(buttons, ctrl, lcd, httpClient);

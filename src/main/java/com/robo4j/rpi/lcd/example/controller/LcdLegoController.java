@@ -30,6 +30,8 @@ import com.robo4j.units.rpi.lcd.AdafruitButtonPlateEnum;
 import com.robo4j.units.rpi.lcd.LcdMessage;
 import com.robo4j.units.rpi.lcd.LcdMessageType;
 
+import sun.net.util.IPAddressUtil;
+
 /**
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
@@ -55,18 +57,22 @@ public class LcdLegoController extends RoboUnit<Object> {
             throw ConfigurationException.createMissingConfigNameException("target, client");
         }
 
-        String clientPort = configuration.getString("client_port", null);
-        client = clientPort == null ? tmpClient : tmpClient.concat(":").concat(clientPort);
-        clientPath = configuration.getString("client_path", "?");
-
-
+		if (IPAddressUtil.isIPv4LiteralAddress(tmpClient)) {
+			String clientPort = configuration.getString("client_port", null);
+			client = clientPort == null ? tmpClient : tmpClient.concat(":").concat(clientPort);
+			clientPath = configuration.getString("client_path", "?");
+		} else {
+			client = null;
+		}
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public RoboResult<String, ?> onMessage(Object message) {
-
-        if (message instanceof AdafruitButtonPlateEnum) {
+		if (client == null) {
+			sendLcdMessage(getContext(), MessageUtil.CLEAR);
+			sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "set your\nip first!"));
+		} else if (message instanceof AdafruitButtonPlateEnum) {
             AdafruitButtonPlateEnum myMessage = (AdafruitButtonPlateEnum) message;
             processAdaruitMessage(myMessage);
         }
@@ -105,12 +111,12 @@ public class LcdLegoController extends RoboUnit<Object> {
             case RIGHT:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Right\nturn!"));
-                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=right")));
+			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=left")));
                 break;
             case LEFT:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Left\nturn!"));
-                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=left")));
+			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=right")));
                 break;
             case UP:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
