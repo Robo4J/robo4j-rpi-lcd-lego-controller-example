@@ -17,10 +17,11 @@
 
 package com.robo4j.rpi.lcd.example.controller;
 
+import com.robo4j.core.AttributeDescriptor;
 import com.robo4j.core.ConfigurationException;
+import com.robo4j.core.DefaultAttributeDescriptor;
 import com.robo4j.core.LifecycleState;
 import com.robo4j.core.RoboContext;
-import com.robo4j.core.RoboResult;
 import com.robo4j.core.RoboUnit;
 import com.robo4j.core.client.util.RoboHttpUtils;
 import com.robo4j.core.configuration.Configuration;
@@ -32,19 +33,25 @@ import com.robo4j.units.rpi.lcd.LcdMessageType;
 
 import sun.net.util.IPAddressUtil;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-public class LcdLegoController extends RoboUnit<Object> {
+public class LcdLegoController extends RoboUnit<AdafruitButtonPlateEnum> {
 
+    private static final String ATTRIBUTE_NAME_BUTTONS = "button";
+    private final static Collection<AttributeDescriptor<?>> KNOWN_ATTRIBUTES = Collections.unmodifiableCollection(Collections
+            .singleton(DefaultAttributeDescriptor.create(AdafruitButtonPlateEnum.class, ATTRIBUTE_NAME_BUTTONS)));
     private String target;
     private String targetOut;
     private String client;
     private String clientPath;
 
     public LcdLegoController(RoboContext context, String id) {
-        super(context, id);
+        super(AdafruitButtonPlateEnum.class, context, id);
     }
 
     @Override
@@ -68,32 +75,36 @@ public class LcdLegoController extends RoboUnit<Object> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public RoboResult<String, ?> onMessage(Object message) {
-		if (client == null) {
-			sendLcdMessage(getContext(), MessageUtil.CLEAR);
-			sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "set your\nip first!"));
-		} else if (message instanceof AdafruitButtonPlateEnum) {
-            AdafruitButtonPlateEnum myMessage = (AdafruitButtonPlateEnum) message;
-            processAdaruitMessage(myMessage);
-        }
-        return null;
+    public void onMessage(AdafruitButtonPlateEnum message) {
+        processAdaruitMessage(message);
     }
 
     @Override
     public void stop() {
-        System.out.println("clear and shutdown...");
         setState(LifecycleState.STOPPING);
-        sendLcdMessage(getContext(), MessageUtil.CLEAR);
-        sendLcdMessage(getContext(), MessageUtil.STOP);
+        System.out.println("Clearing and shutting off display...");
+        sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
+        sendLcdMessage(getContext(), LcdMessage.MESSAGE_TURN_OFF);
+        sendLcdMessage(getContext(), LcdMessage.MESSAGE_STOP);
         setState(LifecycleState.STOPPED);
-
     }
 
     public void shutdown() {
         setState(LifecycleState.SHUTTING_DOWN);
+        System.out.println("shutting off LcdExample...");
         setState(LifecycleState.SHUTDOWN);
         System.exit(0);
-        System.out.println("shutting off LcdExample...");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <R> R getMessageAttribute(AttributeDescriptor<R> descriptor, String value) {
+        return descriptor != null ? (R) AdafruitButtonPlateEnum.getInternalByText(value) : null;
+    }
+
+    @Override
+    public Collection<AttributeDescriptor<?>> getKnownAttributes() {
+        return KNOWN_ATTRIBUTES;
     }
 
     // Private Methods
@@ -111,27 +122,27 @@ public class LcdLegoController extends RoboUnit<Object> {
             case RIGHT:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Right\nturn!"));
-			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=left")));
+			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=left")));
                 break;
             case LEFT:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Left\nturn!"));
-			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=right")));
+			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=right")));
                 break;
             case UP:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Move\nforward!"));
-                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=move")));
+                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=move")));
                 break;
             case DOWN:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Back\nmove!"));
-                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=back")));
+                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=back")));
                 break;
             case SELECT:
                 sendLcdMessage(getContext(), MessageUtil.CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "STOP\nno move!"));
-                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("command=stop")));
+                sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=stop")));
                 break;
             default:
                 SimpleLoggingUtil.error(getClass(), "no such message: " + myMessage);

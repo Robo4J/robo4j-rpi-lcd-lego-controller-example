@@ -21,7 +21,7 @@ import com.robo4j.core.RoboSystem;
 import com.robo4j.core.client.util.RoboHttpUtils;
 import com.robo4j.core.configuration.Configuration;
 import com.robo4j.core.configuration.ConfigurationFactory;
-import com.robo4j.core.unit.HttpClientUnit;
+import com.robo4j.core.httpunit.HttpClientUnit;
 import com.robo4j.core.util.SystemUtil;
 import com.robo4j.hw.rpi.i2c.adafruitlcd.AdafruitLcd;
 import com.robo4j.rpi.lcd.example.controller.LcdLegoController;
@@ -39,11 +39,10 @@ import com.robo4j.units.rpi.lcd.LcdMessage;
  */
 public class LcdLegoControlExampleMain {
 
-    private static final String PATH = "lcd";
     private static final String CLIENT_NAME = "http_client";
     /* default Robo4J port */
     private static final Integer CLIENT_PORT = 8025;
-    private static final String CLIENT_IP = "<SET_YOUR_IP>";
+    private static final String CLIENT_IP = "192.168.22.250";
 
     public static void main(String[] args) throws Exception {
         RoboSystem system = new RoboSystem();
@@ -58,14 +57,14 @@ public class LcdLegoControlExampleMain {
 
         LcdLegoController ctrl = new LcdLegoController(system, "controller");
         config = ConfigurationFactory.createEmptyConfiguration();
-        config.setString("target", PATH);
+        config.setString("target", "lcd");
         config.setString("target_out", CLIENT_NAME);
         config.setString("client", CLIENT_IP);
         config.setString("client_port", CLIENT_PORT.toString());
-        config.setString("client_path", "/tank?");
+        config.setString("client_path", "/controller?");
         ctrl.initialize(config);
 
-        AdafruitLcdUnit lcd = new AdafruitLcdUnit(system, PATH);
+        AdafruitLcdUnit lcd = new AdafruitLcdUnit(system, "lcd");
         config = ConfigurationFactory.createEmptyConfiguration();
         config.setInteger(I2CRoboUnit.PROPERTY_KEY_ADDRESS, AdafruitLcd.DEFAULT_ADDRESS);
         config.setInteger(I2CRoboUnit.PROPERTY_KEY_BUS, AdafruitLcd.DEFAULT_BUS);
@@ -75,13 +74,8 @@ public class LcdLegoControlExampleMain {
         config.setString("address", CLIENT_IP);
         config.setInteger("port", CLIENT_PORT);
 		/* specific configuration */
-        Configuration commands = config.createChildConfiguration(RoboHttpUtils.HTTP_COMMANDS);
-        commands.setString("path", "tank");
-        commands.setString("method", "GET");
-        commands.setString("up", "move");
-        commands.setString("down", "back");
-        commands.setString("left", "left");
-        commands.setString("right", "right");
+        Configuration targetUnits = config.createChildConfiguration(RoboHttpUtils.HTTP_TARGET_UNITS);
+        targetUnits.setString("controller", "GET");
         httpClient.initialize(config);
 
         system.addUnits(buttons, ctrl, lcd, httpClient);
