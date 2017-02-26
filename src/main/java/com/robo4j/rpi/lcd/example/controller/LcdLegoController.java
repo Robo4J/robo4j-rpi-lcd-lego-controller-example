@@ -26,7 +26,6 @@ import com.robo4j.core.RoboUnit;
 import com.robo4j.core.client.util.RoboHttpUtils;
 import com.robo4j.core.configuration.Configuration;
 import com.robo4j.core.logging.SimpleLoggingUtil;
-import com.robo4j.rpi.lcd.example.util.MessageUtil;
 import com.robo4j.units.rpi.lcd.AdafruitButtonPlateEnum;
 import com.robo4j.units.rpi.lcd.LcdMessage;
 import com.robo4j.units.rpi.lcd.LcdMessageType;
@@ -120,34 +119,34 @@ public class LcdLegoController extends RoboUnit<AdafruitButtonPlateEnum> {
     private void processAdaruitMessage(AdafruitButtonPlateEnum myMessage) {
         switch (myMessage) {
             case RIGHT:
-                sendLcdMessage(getContext(), MessageUtil.CLEAR);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Right\nturn!"));
 			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=left")));
                 break;
             case LEFT:
-                sendLcdMessage(getContext(), MessageUtil.CLEAR);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Left\nturn!"));
 			sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=right")));
                 break;
             case UP:
-                sendLcdMessage(getContext(), MessageUtil.CLEAR);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Move\nforward!"));
                 sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=move")));
                 break;
             case DOWN:
-                sendLcdMessage(getContext(), MessageUtil.CLEAR);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "Back\nmove!"));
                 sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=back")));
                 break;
             case SELECT:
-                sendLcdMessage(getContext(), MessageUtil.CLEAR);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
                 sendLcdMessage(getContext(), new LcdMessage(LcdMessageType.SET_TEXT, null, null, "STOP\nno move!"));
                 sendClientMessage(getContext(), RoboHttpUtils.createGetRequest(client, clientPath.concat("button=stop")));
                 break;
             default:
                 SimpleLoggingUtil.error(getClass(), "no such message: " + myMessage);
-                sendLcdMessage(getContext(), MessageUtil.CLEAR);
-                sendLcdMessage(getContext(), MessageUtil.TURN_OFF);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_CLEAR);
+                sendLcdMessage(getContext(), LcdMessage.MESSAGE_TURN_OFF);
                 break;
         }
     }
