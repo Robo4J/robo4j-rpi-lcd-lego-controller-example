@@ -88,6 +88,9 @@ public class LcdLegoControlExampleMain {
         System.out.println(SystemUtil.generateStateReport(system));
         lcd.sendMessage(new LcdMessage("Robo4J: Welcome!\nPress Up/Down!"));
 
+        System.out.println("Client configuration:");
+        System.out.println(SystemUtil.generateSocketPoint(httpClient, ctrl));
+
         System.out.println("Press enter to quit!");
         System.in.read();
         lcd.stop();
