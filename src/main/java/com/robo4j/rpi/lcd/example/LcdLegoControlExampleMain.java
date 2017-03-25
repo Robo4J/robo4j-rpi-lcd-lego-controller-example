@@ -25,8 +25,8 @@ import com.robo4j.core.httpunit.HttpClientUnit;
 import com.robo4j.core.util.SystemUtil;
 import com.robo4j.hw.rpi.i2c.adafruitlcd.AdafruitLcd;
 import com.robo4j.rpi.lcd.example.controller.LcdLegoController;
+import com.robo4j.units.rpi.lcd.AdafruitButtonUnit;
 import com.robo4j.units.rpi.lcd.AdafruitLcdUnit;
-import com.robo4j.units.rpi.lcd.ButtonUnit;
 import com.robo4j.units.rpi.lcd.I2CRoboUnit;
 import com.robo4j.units.rpi.lcd.LcdMessage;
 
@@ -39,63 +39,65 @@ import com.robo4j.units.rpi.lcd.LcdMessage;
  */
 public class LcdLegoControlExampleMain {
 
-    private static final String CLIENT_NAME = "http_client";
-    /* default Robo4J port */
-    private static final Integer CLIENT_PORT = 8025;
-    private static final String CLIENT_IP = "192.168.22.250";
+	private static final String CLIENT_NAME = "http_client";
+	/* default Robo4J port */
+	private static final Integer CLIENT_PORT = 8025;
+	private static final String CLIENT_IP = "192.168.178.26";
 
-    public static void main(String[] args) throws Exception {
-        RoboSystem system = new RoboSystem();
+	public static void main(String[] args) throws Exception {
+		RoboSystem system = new RoboSystem();
 
-        ButtonUnit buttons = new ButtonUnit(system, "buttons");
-        Configuration config = ConfigurationFactory.createEmptyConfiguration();
-        config.setString("target", "controller");
-        config.setString("type", "controll");
-        config.setInteger(I2CRoboUnit.PROPERTY_KEY_ADDRESS, AdafruitLcd.DEFAULT_ADDRESS);
-        config.setInteger(I2CRoboUnit.PROPERTY_KEY_BUS, AdafruitLcd.DEFAULT_BUS);
-        buttons.initialize(config);
+		AdafruitButtonUnit buttons = new AdafruitButtonUnit(system, "buttons");
+		Configuration config = ConfigurationFactory.createEmptyConfiguration();
+		config.setString("target", "controller");
+		config.setString("type", "controll");
+		config.setInteger(I2CRoboUnit.PROPERTY_KEY_ADDRESS, AdafruitLcd.DEFAULT_ADDRESS);
+		config.setInteger(I2CRoboUnit.PROPERTY_KEY_BUS, AdafruitLcd.DEFAULT_BUS);
+		buttons.initialize(config);
 
-        LcdLegoController ctrl = new LcdLegoController(system, "controller");
-        config = ConfigurationFactory.createEmptyConfiguration();
-        config.setString("target", "lcd");
-        config.setString("target_out", CLIENT_NAME);
-        config.setString("client", CLIENT_IP);
-        config.setString("client_port", CLIENT_PORT.toString());
-        config.setString("client_path", "/controller?");
-        ctrl.initialize(config);
+		LcdLegoController ctrl = new LcdLegoController(system, "controller");
+		config = ConfigurationFactory.createEmptyConfiguration();
+		config.setString("target", "lcd");
+		config.setString("targetOut", CLIENT_NAME);
+		config.setString("client", CLIENT_IP);
+		config.setString("clientPort", CLIENT_PORT.toString());
+		config.setString("clientUri", "/controller");
+		ctrl.initialize(config);
 
-        AdafruitLcdUnit lcd = new AdafruitLcdUnit(system, "lcd");
-        config = ConfigurationFactory.createEmptyConfiguration();
-        config.setInteger(I2CRoboUnit.PROPERTY_KEY_ADDRESS, AdafruitLcd.DEFAULT_ADDRESS);
-        config.setInteger(I2CRoboUnit.PROPERTY_KEY_BUS, AdafruitLcd.DEFAULT_BUS);
-        lcd.initialize(config);
+		AdafruitLcdUnit lcd = new AdafruitLcdUnit(system, "lcd");
+		config = ConfigurationFactory.createEmptyConfiguration();
+		config.setInteger(I2CRoboUnit.PROPERTY_KEY_ADDRESS, AdafruitLcd.DEFAULT_ADDRESS);
+		config.setInteger(I2CRoboUnit.PROPERTY_KEY_BUS, AdafruitLcd.DEFAULT_BUS);
+		lcd.initialize(config);
 
-        HttpClientUnit httpClient = new HttpClientUnit(system, CLIENT_NAME);
-        config.setString("address", CLIENT_IP);
-        config.setInteger("port", CLIENT_PORT);
+		HttpClientUnit httpClient = new HttpClientUnit(system, CLIENT_NAME);
+		config.setString("address", CLIENT_IP);
+		config.setInteger("port", CLIENT_PORT);
 		/* specific configuration */
-        Configuration targetUnits = config.createChildConfiguration(RoboHttpUtils.HTTP_TARGET_UNITS);
-        targetUnits.setString("controller", "GET");
-        httpClient.initialize(config);
+		Configuration targetUnits = config.createChildConfiguration(RoboHttpUtils.HTTP_TARGET_UNITS);
+		targetUnits.setString("controller", "GET");
+		httpClient.initialize(config);
 
-        system.addUnits(buttons, ctrl, lcd, httpClient);
+		system.addUnits(buttons, ctrl, lcd, httpClient);
 
-        System.out.println("State before start:");
-        System.out.println(SystemUtil.generateStateReport(system));
-        system.start();
+		System.out.println("State before start:");
+		System.out.println(SystemUtil.printStateReport(system));
+		system.start();
 
-        System.out.println("State after start:");
-        System.out.println(SystemUtil.generateStateReport(system));
-        lcd.sendMessage(new LcdMessage("Robo4J: Welcome!\nPress Up/Down!"));
+		System.out.println("State after start:");
+		System.out.println(SystemUtil.printStateReport(system));
+		lcd.sendMessage(new LcdMessage("Robo4J: Welcome!\nPress Up/Down!"));
 
-        System.out.println("Client configuration:");
-        System.out.println(SystemUtil.generateSocketPoint(httpClient, ctrl));
+		// System.out.println("Server configuration:");
+		// System.out.println(SystemUtil.printSocketEndPoint(httpClient, ctrl));
 
-        System.out.println("Press enter to quit!");
-        System.in.read();
-        lcd.stop();
-        system.shutdown();
+		System.out.println("Use Adafruit Pad to control Lego Platform");
+		System.out.println("ip: " + CLIENT_IP + ", port:" + CLIENT_PORT);
+		System.out.println("Press enter to quit!");
+		System.in.read();
+		lcd.stop();
+		system.shutdown();
 
-    }
+	}
 
 }
