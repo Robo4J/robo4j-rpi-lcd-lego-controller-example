@@ -38,7 +38,6 @@ import sun.net.util.IPAddressUtil;
  */
 public class LcdLegoController extends RoboUnit<AdafruitButtonEnum> {
 
-	private static final String URI_START = "/";
 	private final LegoButtonPlateCodec codec = new LegoButtonPlateCodec();
 	private String target;
 	private String targetOut;

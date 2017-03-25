@@ -75,7 +75,7 @@ public class LcdLegoControlExampleMain {
 		config.setInteger("port", CLIENT_PORT);
 		/* specific configuration */
 		Configuration targetUnits = config.createChildConfiguration(RoboHttpUtils.HTTP_TARGET_UNITS);
-		targetUnits.setString("controller", "GET");
+		targetUnits.setString("controller", "POST");
 		httpClient.initialize(config);
 
 		system.addUnits(buttons, ctrl, lcd, httpClient);
