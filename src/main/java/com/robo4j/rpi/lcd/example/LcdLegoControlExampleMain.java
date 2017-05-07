@@ -44,7 +44,7 @@ public class LcdLegoControlExampleMain {
 	private static final String CLIENT_NAME = "http_client";
 	/* default Robo4J port */
 	private static final Integer CLIENT_PORT = 8025;
-	private static final String CLIENT_IP = "192.168.178.26";
+	private static final String CLIENT_IP = "192.168.22.250";
 
 	public static void main(String[] args) throws Exception {
 		RoboSystem system = new RoboSystem();
