@@ -21,11 +21,12 @@ import com.robo4j.core.httpunit.HttpDecoder;
 import com.robo4j.core.httpunit.HttpEncoder;
 import com.robo4j.core.httpunit.codec.SimpleCommand;
 import com.robo4j.core.httpunit.codec.SimpleCommandCodec;
+import com.robo4j.rpi.lcd.example.controller.AdafruitLcdLegoController;
 
 /**
  *
  * Codec is used by
- * {@link com.robo4j.rpi.lcd.example.controller.LcdLegoController} to construct
+ * {@link AdafruitLcdLegoController} to construct
  * post
  *
  * @author Marcus Hirt (@hirt)

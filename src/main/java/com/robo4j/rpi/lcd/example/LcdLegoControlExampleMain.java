@@ -24,11 +24,13 @@ import com.robo4j.core.configuration.ConfigurationFactory;
 import com.robo4j.core.httpunit.HttpClientUnit;
 import com.robo4j.core.util.SystemUtil;
 import com.robo4j.hw.rpi.i2c.adafruitlcd.AdafruitLcd;
-import com.robo4j.rpi.lcd.example.controller.LcdLegoController;
+import com.robo4j.rpi.lcd.example.controller.AdafruitLcdLegoController;
+import com.robo4j.rpi.lcd.example.controller.LF710LegoController;
 import com.robo4j.units.rpi.lcd.AdafruitButtonUnit;
 import com.robo4j.units.rpi.lcd.AdafruitLcdUnit;
 import com.robo4j.units.rpi.lcd.I2CRoboUnit;
 import com.robo4j.units.rpi.lcd.LcdMessage;
+import com.robo4j.units.rpi.pad.LF710PadUnit;
 
 /**
  *
@@ -42,7 +44,7 @@ public class LcdLegoControlExampleMain {
 	private static final String CLIENT_NAME = "http_client";
 	/* default Robo4J port */
 	private static final Integer CLIENT_PORT = 8025;
-	private static final String CLIENT_IP = "192.168.22.250";
+	private static final String CLIENT_IP = "192.168.178.26";
 
 	public static void main(String[] args) throws Exception {
 		RoboSystem system = new RoboSystem();
@@ -55,7 +57,7 @@ public class LcdLegoControlExampleMain {
 		config.setInteger(I2CRoboUnit.PROPERTY_KEY_BUS, AdafruitLcd.DEFAULT_BUS);
 		buttons.initialize(config);
 
-		LcdLegoController ctrl = new LcdLegoController(system, "controller");
+		AdafruitLcdLegoController ctrl = new AdafruitLcdLegoController(system, "controller");
 		config = ConfigurationFactory.createEmptyConfiguration();
 		config.setString("target", "lcd");
 		config.setString("targetOut", CLIENT_NAME);
@@ -63,6 +65,20 @@ public class LcdLegoControlExampleMain {
 		config.setString("clientPort", CLIENT_PORT.toString());
 		config.setString("clientUri", "/controller");
 		ctrl.initialize(config);
+
+		LF710LegoController padCtrl = new LF710LegoController(system, "padController");
+		config = ConfigurationFactory.createEmptyConfiguration();
+		config.setString("padInput", "gamepad");
+		config.setString("target", "controller");
+		padCtrl.initialize(config);
+
+
+		LF710PadUnit gamepad = new LF710PadUnit(system, "gamepad");
+		config = ConfigurationFactory.createEmptyConfiguration();
+		config.setString("target", "padController");
+		config.setString("input", "/dev/input/js0");
+		gamepad.initialize(config);
+
 
 		AdafruitLcdUnit lcd = new AdafruitLcdUnit(system, "lcd");
 		config = ConfigurationFactory.createEmptyConfiguration();
@@ -78,7 +94,7 @@ public class LcdLegoControlExampleMain {
 		targetUnits.setString("controller", "POST");
 		httpClient.initialize(config);
 
-		system.addUnits(buttons, ctrl, lcd, httpClient);
+		system.addUnits(buttons, ctrl, lcd, httpClient, padCtrl, gamepad);
 
 		System.out.println("State before start:");
 		System.out.println(SystemUtil.printStateReport(system));

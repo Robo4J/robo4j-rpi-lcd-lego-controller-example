@@ -23,8 +23,8 @@ import com.robo4j.core.RoboContext;
 import com.robo4j.core.RoboUnit;
 import com.robo4j.core.client.util.RoboHttpUtils;
 import com.robo4j.core.configuration.Configuration;
+import com.robo4j.core.httpunit.Constants;
 import com.robo4j.core.logging.SimpleLoggingUtil;
-import com.robo4j.core.util.ConstantUtil;
 import com.robo4j.rpi.lcd.example.codec.LegoButtonPlateCodec;
 import com.robo4j.units.rpi.lcd.AdafruitButtonEnum;
 import com.robo4j.units.rpi.lcd.LcdMessage;
@@ -36,7 +36,7 @@ import sun.net.util.IPAddressUtil;
  * @author Marcus Hirt (@hirt)
  * @author Miro Wengner (@miragemiko)
  */
-public class LcdLegoController extends RoboUnit<AdafruitButtonEnum> {
+public class AdafruitLcdLegoController extends RoboUnit<AdafruitButtonEnum> {
 
 	private final LegoButtonPlateCodec codec = new LegoButtonPlateCodec();
 	private String target;
@@ -44,7 +44,7 @@ public class LcdLegoController extends RoboUnit<AdafruitButtonEnum> {
 	private String client;
 	private String clientUri;
 
-	public LcdLegoController(RoboContext context, String id) {
+	public AdafruitLcdLegoController(RoboContext context, String id) {
 		super(AdafruitButtonEnum.class, context, id);
 	}
 
@@ -61,7 +61,7 @@ public class LcdLegoController extends RoboUnit<AdafruitButtonEnum> {
 		if (IPAddressUtil.isIPv4LiteralAddress(tmpClient)) {
 			String clientPort = configuration.getString("clientPort", null);
 			client = clientPort == null ? tmpClient : tmpClient.concat(":").concat(clientPort);
-			clientUri = configuration.getString("clientUri", ConstantUtil.EMPTY_STRING);
+			clientUri = configuration.getString("clientUri", Constants.EMPTY_STRING);
 		} else {
 			client = null;
 		}
@@ -83,6 +83,7 @@ public class LcdLegoController extends RoboUnit<AdafruitButtonEnum> {
 		setState(LifecycleState.STOPPED);
 	}
 
+	@Override
 	public void shutdown() {
 		setState(LifecycleState.SHUTTING_DOWN);
 		System.out.println("shutting off LcdExample...");
